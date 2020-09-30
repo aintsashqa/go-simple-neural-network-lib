@@ -1,65 +1,39 @@
 package main
 
 import (
-	"flag"
 	"fmt"
-	"log"
-	"os"
 
 	"github.com/aintsashqa/go-simple-neural-network-lib/functions"
 	"github.com/aintsashqa/go-simple-neural-network-lib/network"
 	"github.com/aintsashqa/go-simple-neural-network-lib/utils"
 )
 
-var (
-	filename *string = flag.String("filename", "", "Write filename to import neural network data")
-)
-
-func init() {
-	flag.Parse()
-}
-
 func main() {
-	var net *network.NeuralNetwork
+	options := network.NeuralNetworkOptions{
+		InputLayerNeuronsCount:   4,
+		HiddenLayersNeuronsCount: []uint32{2},
+		OutputLayerNeuronsCount:  1,
 
-	currentDir, _ := os.Getwd()
-	currentDir = fmt.Sprintf("%s/examples/base", currentDir)
-	if *filename == "" {
-		options := network.NeuralNetworkOptions{
-			InputLayerNeuronsCount:   4,
-			HiddenLayersNeuronsCount: []uint32{2},
-			OutputLayerNeuronsCount:  1,
-			ActivationFunc:           functions.Sigmoid,
-		}
-
-		net = network.NewNeuralNetwork(&options)
-
-		balancer := utils.Balancer{
-			EpochCount:   1000000,
-			LearningRate: 0.01,
-			Dataset:      dataset,
-		}
-
-		utils.Balance(net, &balancer)
-
-		*filename = fmt.Sprintf("%s/net", currentDir)
-		if err := utils.Export(net, *filename); err != nil {
-			log.Print(err)
-		}
-	} else {
-		var err error
-		*filename = fmt.Sprintf("%s/%s", currentDir, *filename)
-		net, err = utils.Import(*filename)
-		if err != nil {
-			log.Fatal(err)
-		}
+		ActivationFunc: functions.Sigmoid,
 	}
 
-	_, value := net.FeedForward([]float64{
-		1, 0, 0, 1, // 10
-	})
+	net := network.NewNeuralNetwork(&options)
 
-	fmt.Println(value)
+	balancer := utils.Balancer{
+		Dataset:      dataset,
+		EpochCount:   100000,
+		LearningRate: 0.01,
+	}
+
+	utils.Balance(net, &balancer)
+
+	result, inputs := dataset()
+
+	fmt.Println("Expected\t#\tPredict")
+	for index, r := range result {
+		_, output := net.FeedForward(inputs[index])
+		fmt.Printf("%.3f\t\t#\t%.3f\n", r.NeuronValue, output)
+	}
 }
 
 func dataset() ([]struct {

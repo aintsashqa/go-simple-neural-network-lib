@@ -32,9 +32,6 @@ func Balance(net *network.NeuralNetwork, balancer *Balancer) {
 		for index := 0; index < len(expecteds); index++ {
 			balanceError += balance_backPropagationNetwork(net, balancer.LearningRate, expecteds[index], inputs[index])
 		}
-		if currentEpoch%1000 == 0 {
-			log.Printf("[utils.Balance]: Balance error %f on epoch %d", balanceError/float64(currentEpoch), currentEpoch)
-		}
 	}
 
 	log.Printf("[utils.Balance]: Balance error result %f", balanceError/float64(balancer.EpochCount))
