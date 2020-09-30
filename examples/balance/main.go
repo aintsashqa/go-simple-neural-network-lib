@@ -29,10 +29,10 @@ func main() {
 
 	result, inputs := dataset()
 
-	fmt.Println("Expected\t#\tPredict")
+	fmt.Println("Expected\t#\tPrediction")
 	for index, r := range result {
-		_, output := net.FeedForward(inputs[index])
-		fmt.Printf("%.3f\t\t#\t%.3f\n", r.NeuronValue, output)
+		_, predict := net.FeedForward(inputs[index])
+		fmt.Printf("%.3f\t\t#\t%.3f\n", r.NeuronValue, predict)
 	}
 }
 
